@@ -1,9 +1,8 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 function Signup()
 {
-    const navigate = useNavigate();
+    
     const [message, setMessage] = useState('');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
@@ -51,9 +50,11 @@ function Signup()
             if(res.error && res.error.length > 0) {
                 setMessage(res.error);
             } else {
-                setMessage('Account created! Check your email for verification code.');
+                setMessage('Account created! Redirecting to verification...');
+                // Store the login name in localStorage so verify page can access it
+                localStorage.setItem('pending_verification', login);
                 setTimeout(() => {
-                    navigate('/verify', { state: { login: login } });
+                    window.location.href = '/verify';
                 }, 2000);
             }
         }
