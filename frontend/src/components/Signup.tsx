@@ -44,7 +44,7 @@ function Signup()
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch('http://68.183.171.109:5000/api/signup',
+            const response = await fetch('http://68.183.171.109/api/signup',
                 {method:'POST', body:js, headers:{'Content-Type': 'application/json'}});
             var res = JSON.parse(await response.text());
 
