@@ -17,23 +17,16 @@ client.connect().then(() => {
 });
 
 
-// Create Ethereal test account and transporter
-let emailTransporter;
-
-nodemailer.createTestAccount().then(testAccount => {
-    emailTransporter = nodemailer.createTransport({
-        host: 'smtp.ethereal.email',
-        port: 587,
-        secure: false,
-        auth: {
-            user: testAccount.user,
-            pass: testAccount.pass
-        }
-    });
-    console.log('✅ Ethereal email test account created');
-}).catch(err => {
-    console.error('Error creating test account:', err);
+// Gmail Email Setup
+const emailTransporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'eva.m.lopez2004@gmail.com',  // Your Gmail address
+        pass: 'apkg lajw nycj upre'     // Your 16-char App Password
+    }
 });
+
+console.log('✅ Gmail transporter created');
 
 
  app.use((req, res, next) => 
@@ -181,26 +174,24 @@ app.post('/api/signup', async (req, res, next) =>
             
             await db.collection('Users').insertOne(newUser);
             
-            // // Send verification email
-            // const mailOptions = {
-            //     from: 'noreply@cardsapp.com',
-            //     to: email,
-            //     subject: 'Verify Your Account',
-            //     html: `
-            //         <h2>Welcome to COP 4331 MERN Stack Demo!</h2>
-            //         <p>Hi ${firstName},</p>
-            //         <p>Thank you for signing up. Please verify your email address using the code below:</p>
-            //         <h1 style="color: #4CAF50; letter-spacing: 5px;">${verificationCode}</h1>
-            //         <p>This code will expire in 24 hours.</p>
-            //         <p>If you didn't create this account, please ignore this email.</p>
-            //     `
-            // };
+            // Send verification email
+            const mailOptions = {
+                from: 'eva.m.lopez2004@gmail.com',
+                to: email,
+                subject: 'Verify Your Account - COP 4331 Cards',
+                html: `
+                    <h2>Welcome to COP 4331 MERN Stack Demo!</h2>
+                    <p>Hi ${firstName},</p>
+                    <p>Thank you for signing up. Please verify your email address using the code below:</p>
+                    <h1 style="color: #4CAF50; letter-spacing: 5px;">${verificationCode}</h1>
+                    <p>This code will expire in 24 hours.</p>
+                    <p>If you didn't create this account, please ignore this email.</p>
+                `
+            };
             
-            // const info = await emailTransporter.sendMail(mailOptions);
-            // console.log('📧 Verification email sent!');
-            // console.log('Preview URL:', nodemailer.getTestMessageUrl(info));
-            console.log('✅ User created:', login);
-            console.log('Verification Code:', verificationCode);
+            await emailTransporter.sendMail(mailOptions);
+            console.log('✅ Verification email sent to:', email);
+            console.log('🔑 Verification Code:', verificationCode);
         }
     }
     catch(e)
