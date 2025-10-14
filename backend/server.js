@@ -18,7 +18,7 @@ client.connect().then(() => {
 
 //Trying resend for email verification
 const { Resend } = require('resend');
-const resend = new Resend('re_WnQYMkae_5S9sz65hj8KZ9fwtgzQkUDk8');  // Replace with your actual API key
+const resend = new Resend('re_dMUewD2W_Mgg2B9gHzFC8QnRBZvSmjJpd');  // Replace with your actual API key
 
 console.log('✅ Resend email service ready');
 
@@ -172,7 +172,7 @@ app.post('/api/signup', async (req, res, next) =>
             // Send verification email with Resend
             try {
                 await resend.emails.send({
-                    from: 'onboarding@resend.dev',  // Resend's verified domain
+                    from: 'noreply@evalopez.xyz',  // Resend's verified domain
                     to: email,
                     subject: 'Verify Your Account - COP 4331 Cards',
                     html: `
@@ -185,8 +185,13 @@ app.post('/api/signup', async (req, res, next) =>
                     `
                 });
                 console.log('✅ Verification email sent to:', email);
+                console.log('📧 Email ID:', result.id);
+                console.log('📬 Sent to:', email);
             } catch (emailError) {
                 console.error('Email send failed:', emailError);
+                console.error('Error details:', emailError);
+                console.error('Error message:', emailError.message);
+                console.error('Full error object:', JSON.stringify(emailError, null, 2));
             }
 
             console.log('🔑 Verification Code:', verificationCode);
