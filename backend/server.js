@@ -170,9 +170,10 @@ app.post('/api/signup', async (req, res, next) =>
             await db.collection('Users').insertOne(newUser);
 
             // Send verification email with Resend
+            // Send verification email with Resend
             try {
-                await resend.emails.send({
-                    from: 'noreply@evalopez.xyz',  // Resend's verified domain
+                const { data, error } = await resend.emails.send({
+                    from: 'onboarding@resend.dev',
                     to: email,
                     subject: 'Verify Your Account - COP 4331 Cards',
                     html: `
@@ -184,14 +185,14 @@ app.post('/api/signup', async (req, res, next) =>
                         <p>If you didn't create this account, please ignore this email.</p>
                     `
                 });
-                console.log('✅ Verification email sent to:', email);
-                console.log('📧 Email ID:', result.id);
-                console.log('📬 Sent to:', email);
+                
+                if (error) {
+                    console.error('❌ Resend error:', error);
+                } else {
+                    console.log('✅ Verification email sent to:', email);
+                }
             } catch (emailError) {
-                console.error('Email send failed:', emailError);
-                console.error('Error details:', emailError);
-                console.error('Error message:', emailError.message);
-                console.error('Full error object:', JSON.stringify(emailError, null, 2));
+                console.error('❌ Email send failed:', emailError);
             }
 
             console.log('🔑 Verification Code:', verificationCode);
