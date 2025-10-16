@@ -22,7 +22,8 @@ function Verify()
         var js = JSON.stringify(obj);
 
         try {
-            const response = await fetch('http://68.183.171.109/api/verify',
+            //const response = await fetch('http://68.183.171.109/api/verify',
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/verify`,
                 {method:'POST', body:js, headers:{'Content-Type': 'application/json'}});
             var res = JSON.parse(await response.text());
 

@@ -102,7 +102,13 @@ app.post('/api/searchcards', async (req, res, next) =>
     const { userId, search } = req.body;
     var _search = search.trim();
     const db = client.db('COP4331Cards');
-    const results = await db.collection('Cards').find({"Card":{$regex:_search+'.*', $options:'i'}}).toArray();
+
+    // Filter by BOTH user AND search term
+    const results = await db.collection('Cards').find({
+        "UserId": userId,
+        "Card": {$regex:_search+'.*', $options:'i'}
+    }).toArray();
+    
     var _ret = [];
 
     for( var i=0; i<results.length; i++ )

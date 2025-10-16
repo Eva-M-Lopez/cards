@@ -17,7 +17,8 @@ import { useState } from "react";
 
     try
     {    
-        const response = await fetch('http://68.183.171.109/api/login',
+        //const response = await fetch('http://68.183.171.109/api/login',
+        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`,
             {method:'POST',body:js,headers:{'Content-Type': 'application/json'}});
 
         

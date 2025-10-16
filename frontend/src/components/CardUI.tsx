@@ -3,7 +3,7 @@ function CardUI()
  {
    let _ud : any = localStorage.getItem('user_data');
    let ud = JSON.parse( _ud );
-   let userId : string = ud.id;
+   let userId : number = ud.id;
 
    const [message,setMessage] = useState('');
    const [searchResults,setResults] = useState('');
@@ -28,7 +28,8 @@ function CardUI()
 
       try
       {
-         const response = await fetch('http://68.183.171.109/api/addcard',
+         //const response = await fetch('http://68.183.171.109/api/addcard',
+         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/addcard`,
          {method:'POST',body:js,headers:{'Content-Type': 'application/json'}});
          let txt = await response.text();
          let res = JSON.parse(txt);
@@ -55,7 +56,8 @@ function CardUI()
       let js = JSON.stringify(obj);
       try
       {
-         const response = await fetch('http://68.183.171.109/api/searchcards',
+         //const response = await fetch('http://68.183.171.109/api/searchcards',
+         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/searchcards`,
          {method:'POST',body:js,headers:{'Content-Type': 'application/json'}});
          let txt = await response.text();
          let res = JSON.parse(txt);
