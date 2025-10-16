@@ -1,71 +1,66 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const url = 'mongodb+srv://RickL:COP4331@cluster0.rfuugai.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+// Use environment variables
+const url = process.env.MONGODB_URL || 'mongodb+srv://RickL:COP4331@cluster0.rfuugai.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 const client = new MongoClient(url);
-//debugging
+
+// Connect to MongoDB
 client.connect().then(() => {
     console.log('Connected to MongoDB!');
 }).catch(err => {
     console.error('MongoDB connection error:', err);
 });
 
-//Trying resend for email verification
-const { Resend } = require('resend');
-const resend = new Resend('re_dMUewD2W_Mgg2B9gHzFC8QnRBZvSmjJpd');  // Replace with your actual API key
-
+// Resend email service
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dMUewD2W_Mgg2B9gHzFC8QnRBZvSmjJpd');
 console.log('✅ Resend email service ready');
 
-
-
- app.use((req, res, next) => 
+app.use((req, res, next) => 
 {
-    app.get("/api/ping", (req, res, next) => {
-    res.status(200).json({ message: "Hello World" });
-    });
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
+        'Access-Control-Allow-Headers',
+        'Origin, X-Requested-With, Content-Type, Accept, Authorization'
     );
     res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, PATCH, DELETE, OPTIONS'
+        'Access-Control-Allow-Methods',
+        'GET, POST, PATCH, DELETE, OPTIONS'
     );
     next();
- }); 
+}); 
 
+app.get("/api/ping", (req, res, next) => {
+    res.status(200).json({ message: "Hello World" });
+});
 
- 
- app.post('/api/addcard', async (req, res, next) =>
- {
-    // incoming: userId, color
-    // outgoing: error
+app.post('/api/addcard', async (req, res, next) =>
+{
     const { userId, card } = req.body;
     const newCard = {Card:card,UserId:userId};
     var error = '';
     
-   try
-   {
-      const db = client.db('COP4331Cards');
-      const result = db.collection('Cards').insertOne(newCard);
-   }
-   catch(e)
-   {
-      error = e.toString();
-   }
+    try
+    {
+        const db = client.db('COP4331Cards');
+        const result = await db.collection('Cards').insertOne(newCard);
+    }
+    catch(e)
+    {
+        error = e.toString();
+    }
 
-   
-   var ret = { error: error };
-   res.status(200).json(ret);
-   
- });
+    var ret = { error: error };
+    res.status(200).json(ret);
+});
 
 app.post('/api/login', async (req, res, next) =>
 {
@@ -101,11 +96,8 @@ app.post('/api/login', async (req, res, next) =>
     res.status(200).json(ret);
 });
  
- 
- app.post('/api/searchcards', async (req, res, next) => 
+app.post('/api/searchcards', async (req, res, next) => 
 {
-    // incoming: userId, search
-    // outgoing: results[], error
     var error = '';
     const { userId, search } = req.body;
     var _search = search.trim();
@@ -115,11 +107,11 @@ app.post('/api/login', async (req, res, next) =>
 
     for( var i=0; i<results.length; i++ )
     {
-      _ret.push( results[i].Card );
+        _ret.push( results[i].Card );
     }
-     var ret = {results:_ret, error:error};
+    var ret = {results:_ret, error:error};
     res.status(200).json(ret);
- });
+});
 
 app.post('/api/signup', async (req, res, next) =>
 {
@@ -130,7 +122,6 @@ app.post('/api/signup', async (req, res, next) =>
     {
         const db = client.db('COP4331Cards');
         
-        // Check if username or email already exists
         const existingUser = await db.collection('Users').findOne({
             $or: [{Login: login}, {Email: email}]
         });
@@ -143,10 +134,8 @@ app.post('/api/signup', async (req, res, next) =>
         }
         else
         {
-            // Generate verification code
             const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
             
-            // Get the next UserID
             const lastUser = await db.collection('Users')
                 .find()
                 .sort({UserID: -1})
@@ -155,7 +144,6 @@ app.post('/api/signup', async (req, res, next) =>
             
             const nextUserId = lastUser.length > 0 ? lastUser[0].UserID + 1 : 1;
             
-            // Create new user
             const newUser = {
                 Login: login,
                 Password: password,
@@ -169,27 +157,27 @@ app.post('/api/signup', async (req, res, next) =>
             
             await db.collection('Users').insertOne(newUser);
 
-            // Send verification email with Resend
-            // Send verification email with Resend
+            // Send verification email
             try {
                 const { data, error } = await resend.emails.send({
                     from: 'onboarding@resend.dev',
-                    to: email,
+                    to: 'eva.m.lopez2004@gmail.com', // Hardcoded for testing
                     subject: 'Verify Your Account - COP 4331 Cards',
                     html: `
                         <h2>Welcome to COP 4331 MERN Stack Demo!</h2>
                         <p>Hi ${firstName},</p>
-                        <p>Thank you for signing up. Please verify your email address using the code below:</p>
+                        <p>User: ${login}</p>
+                        <p>Their email: ${email}</p>
+                        <p>Verification code:</p>
                         <h1 style="color: #4CAF50; letter-spacing: 5px;">${verificationCode}</h1>
                         <p>This code will expire in 24 hours.</p>
-                        <p>If you didn't create this account, please ignore this email.</p>
                     `
                 });
                 
                 if (error) {
                     console.error('❌ Resend error:', error);
                 } else {
-                    console.log('✅ Verification email sent to:', email);
+                    console.log('✅ Verification email sent');
                 }
             } catch (emailError) {
                 console.error('❌ Email send failed:', emailError);
@@ -223,7 +211,6 @@ app.post('/api/verify', async (req, res, next) =>
         
         if(user)
         {
-            // Mark user as verified
             await db.collection('Users').updateOne(
                 {Login: login},
                 {$set: {IsVerified: true}, $unset: {VerificationCode: ""}}
@@ -244,4 +231,7 @@ app.post('/api/verify', async (req, res, next) =>
     res.status(200).json(ret);
 });
  
- app.listen(5000); // start Node + Express server on port 5000
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
