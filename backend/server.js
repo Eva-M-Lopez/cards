@@ -160,7 +160,7 @@ app.post('/api/signup', async (req, res, next) =>
             // Send verification email
             try {
                 const { data, error } = await resend.emails.send({
-                    from: 'onboarding@resend.dev',
+                    from: 'noreply@evalopez.xyz',
                     to: 'eva.m.lopez2004@gmail.com', // Hardcoded for testing
                     subject: 'Verify Your Account - COP 4331 Cards',
                     html: `
