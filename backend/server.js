@@ -236,6 +236,124 @@ app.post('/api/verify', async (req, res, next) =>
     var ret = { success: success, error: error };
     res.status(200).json(ret);
 });
+
+app.post('/api/request-password-reset', async (req, res, next) =>
+{
+    const { email } = req.body;
+    var error = '';
+
+    try
+    {
+        const db = client.db('COP4331Cards');
+        
+        // Find user by email
+        const user = await db.collection('Users').findOne({ Email: email });
+        
+        if(!user)
+        {
+            error = 'No account found with that email address';
+        }
+        else
+        {
+            // Generate reset code
+            const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Store reset code in database (expires in 1 hour)
+            const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
+            
+            await db.collection('Users').updateOne(
+                { Email: email },
+                { $set: { 
+                    ResetCode: resetCode,
+                    ResetCodeExpires: expiresAt
+                }}
+            );
+            
+            // Send reset email
+            try {
+                const { data, error: emailError } = await resend.emails.send({
+                    from: 'onboarding@resend.dev',
+                    to: 'eva.m.lopez2004@gmail.com', // Hardcoded for testing
+                    subject: 'Password Reset Code - COP 4331 Cards',
+                    html: `
+                        <h2>Password Reset Request</h2>
+                        <p>Hi ${user.FirstName},</p>
+                        <p>User: ${user.Login}</p>
+                        <p>Their email: ${email}</p>
+                        <p>You requested a password reset. Use this code:</p>
+                        <h1 style="color: #FF5722; letter-spacing: 5px;">${resetCode}</h1>
+                        <p>This code expires in 1 hour.</p>
+                        <p>If you didn't request this, ignore this email.</p>
+                    `
+                });
+                
+                if (emailError) {
+                    console.error('❌ Resend error:', emailError);
+                } else {
+                    console.log('✅ Reset email sent');
+                }
+            } catch (emailError) {
+                console.error('❌ Email send failed:', emailError);
+            }
+            
+            console.log('🔑 Reset Code:', resetCode);
+        }
+    }
+    catch(e)
+    {
+        error = e.toString();
+    }
+
+    var ret = { error: error };
+    res.status(200).json(ret);
+});
+
+app.post('/api/reset-password', async (req, res, next) =>
+{
+    const { email, resetCode, newPassword } = req.body;
+    var error = '';
+    var success = false;
+
+    try
+    {
+        const db = client.db('COP4331Cards');
+        
+        // Find user with matching email and reset code
+        const user = await db.collection('Users').findOne({
+            Email: email,
+            ResetCode: resetCode
+        });
+        
+        if(!user)
+        {
+            error = 'Invalid reset code';
+        }
+        else if(user.ResetCodeExpires < new Date())
+        {
+            error = 'Reset code has expired. Please request a new one.';
+        }
+        else
+        {
+            // Update password and remove reset code
+            await db.collection('Users').updateOne(
+                { Email: email },
+                { 
+                    $set: { Password: newPassword },
+                    $unset: { ResetCode: "", ResetCodeExpires: "" }
+                }
+            );
+            success = true;
+            console.log('✅ Password reset for:', user.Login);
+        }
+    }
+    catch(e)
+    {
+        error = e.toString();
+    }
+
+    var ret = { success: success, error: error };
+    res.status(200).json(ret);
+});
  
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
