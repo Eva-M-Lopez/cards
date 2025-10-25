@@ -51,6 +51,7 @@ function Login() {
                         </svg>
                     </div>
                 </div>
+                <span id="inner-title">LOGIN</span>
                 <form onSubmit={doLogin}>
                     <div className="input-group">
                         <input 
