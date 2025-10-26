@@ -9,7 +9,18 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
+    width: 100%;
     font-family: 'Arial', sans-serif;
+}
+
+#root {
+    width: 100%;
+    height: 100%;
+    min-height: 100vh;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 .login-container {
@@ -18,7 +29,11 @@ html, body {
     align-items: center;
     width: 100%;
     height: 100vh;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
     background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background-size: 100% 100%;
     background-attachment: fixed;
 }
 
@@ -27,8 +42,8 @@ html, body {
     border-radius: 20px;
     box-shadow: 0 10px 25px rgba(0,0,0,0.1);
     padding: 40px;
-    width: 350px;
-    max-width: 90%;
+    width: 100%;
+    max-width: 450px;
     text-align: center;
 }
 
@@ -102,7 +117,7 @@ html, body {
 }
 
 .forgot-password-link {
-    color: #666;
+    color: #2b00ff;
     text-decoration: none;
     font-size: 14px;
     margin-bottom: 10px;
@@ -110,21 +125,233 @@ html, body {
 }
 
 .forgot-password-link:hover {
-    color: #ffffff;
+    color: #2b00ff;
     text-decoration: underline;
 }
 
 .signup-link {
     font-size: 14px;
-    color: #666;
+    color: #2b00ff;
 }
 
 .signup-link a {
-    color: #ffffff;
+    color: #2b00ff;
     text-decoration: none;
     font-weight: bold;
 }
 
 .signup-link a:hover {
+    text-decoration: underline;
+}
+
+/* Signup/Create Account Styles */
+.signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background-size: 100% 100%;
+    background-attachment: fixed;
+}
+
+.signup-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.signup-button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.signup-button:hover {
+    opacity: 0.9;
+}
+
+.login-link {
+    font-size: 14px;
+    color: #2b00ff;
+    margin-top: 20px;
+}
+
+.login-link a {
+    color: #2b00ff;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+/* Verify Page Styles */
+.verify-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background-size: 100% 100%;
+    background-attachment: fixed;
+}
+
+.verify-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.verify-button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.verify-button:hover {
+    opacity: 0.9;
+}
+
+/* Forgot Password Styles */
+.forgot-password-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background-size: 100%;
+    background-attachment: fixed;
+}
+
+.forgot-password-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.forgot-password-button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.forgot-password-button:hover {
+    opacity: 0.9;
+}
+
+/* Reset Password Styles */
+.reset-password-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    background-size: 100% 100%;
+    background-attachment: fixed;
+}
+
+.reset-password-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+}
+
+.reset-password-button {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.reset-password-button:hover {
+    opacity: 0.9;
+}
+
+/* Common title styles for all forms */
+#inner-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--text-color);
+    margin-bottom: 30px;
+    display: block;
+}
+
+/* Common result message styles */
+#signupResult, #verifyResult, #forgotPasswordResult, #resetPasswordResult {
+    display: block;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #4CAF50;
+}
+
+/* Back to login link styles */
+.back-to-login {
+    margin-top: 20px;
+}
+
+.back-to-login a {
+    color: #2b00ff;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.back-to-login a:hover {
     text-decoration: underline;
 }
