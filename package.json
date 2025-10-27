@@ -1,4 +1,19 @@
 {
+  
+  "name": "cards",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend",
+    "mobile",
+    "shared"
+  ],
+  "scripts": {
+    "install:all": "npm install",
+    "dev:web": "npm run dev --workspace=frontend",
+    "dev:mobile": "npm start --workspace=mobile",
+    "dev:backend": "npm start --workspace=backend"
+  },
   "dependencies": {
     "dotenv": "^17.2.3"
   }
