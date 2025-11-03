@@ -1,10 +1,2 @@
-export const APP_NAME = "My App";
-
-export const API_BASE_URL = "http://172.28.160.1:3000";
-
-export function getApiUrl(envApiUrl?: string): string {
-  if (envApiUrl) {
-    return envApiUrl;
-  }
-  return API_BASE_URL;
-}
+export const APP_NAME = "Test";
+export const API_URL = process.env.API_URL || "http://localhost:3000";
