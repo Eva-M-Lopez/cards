@@ -137,6 +137,8 @@ shared/src/
 // In frontend or mobile
 import { User, apiClient, formatDate } from '@cards/shared';
 ```
+**Note:** Note: The `shared` workspace is published internally under the scoped name `@cards/shared`.
+This scoped name ensures consistent imports across projects and allows npm workspaces to link it locally instead of fetching it from the public registry.
 
 ## Common Commands
 
@@ -240,10 +242,24 @@ npx eas-cli build --platform ios
 ## Troubleshooting
 
 ### "Cannot find module '@cards/shared'"
+If you see this or a similar error during npm install:
+```bash
+npm ERR! 404 Not Found - GET https://registry.npmjs.org/@cards%2fshared
+```
+
+Make sure that:
+1. The `shared/package.json` file includes:
+```json
+"name": "@cards/shared",
+"private": true
+```
+2. You’re running installs from the repo root (not inside subfolders):
 ```bash
 # From root
 npm install
 ```
+npm workspaces automatically symlink @cards/shared into the web and mobile projects when the names match.
+
 
 ### Web app won't start
 ```bash
