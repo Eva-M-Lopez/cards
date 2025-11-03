@@ -1,32 +1,34 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, type User } from '@cards/shared';
 
 function Login() {
     const navigate = useNavigate();
     const [message, setMessage] = useState('');
     const [loginName, setLoginName] = useState('');
     const [loginPassword, setPassword] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
 
     async function doLogin(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        setIsLoading(true);
-        setMessage('');
+
+        const obj = { login: loginName, password: loginPassword };
+        const js = JSON.stringify(obj);
 
         try {
-            const response = await loginUser({
-                login: loginName,
-                password: loginPassword,
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/login`, {
+                method: 'POST',
+                body: js,
+                headers: { 'Content-Type': 'application/json' }
             });
+            
+            const res = await response.json();
 
-            if (response.id <= 0) {
+            if (res.id <= 0) {
                 setMessage('User/Password combination incorrect');
             } else {
-                const user: User = { 
-                    firstName: response.firstName, 
-                    lastName: response.lastName, 
-                    id: response.id 
+                const user = { 
+                    firstName: res.firstName, 
+                    lastName: res.lastName, 
+                    id: res.id 
                 };
                 localStorage.setItem('user_data', JSON.stringify(user));
 
@@ -35,8 +37,6 @@ function Login() {
             }
         } catch (error) {
             alert(error instanceof Error ? error.toString() : 'An error occurred');
-        } finally {
-            setIsLoading(false);
         }
     }
 
@@ -72,13 +72,7 @@ function Login() {
                         />
                     </div>
                     {message && <div className="error-message">{message}</div>}
-                    <button 
-                        type="submit" 
-                        className="login-button"
-                        disabled={isLoading}
-                    >
-                        {isLoading ? 'Logging in...' : 'Log in'}
-                    </button>
+                    <button type="submit" className="login-button">Log in</button>
                 </form>
                 <div className="additional-links">
                     <a href="/forgot-password" className="forgot-password-link">Forgot Password?</a>
