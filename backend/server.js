@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 
 // Use environment variables
-const url = process.env.MONGODB_URL || 'mongodb+srv://RickL:COP4331@cluster0.rfuugai.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
+const url = process.env.MONGODB_URL;
 const client = new MongoClient(url);
 
 // Connect to MongoDB
@@ -21,7 +21,7 @@ client.connect().then(() => {
 });
 
 // Resend email service
-const resend = new Resend(process.env.RESEND_API_KEY || 're_dMUewD2W_Mgg2B9gHzFC8QnRBZvSmjJpd');
+const resend = new Resend(process.env.RESEND_API_KEY);
 console.log('✅ Resend email service ready');
 
 app.use((req, res, next) => 
