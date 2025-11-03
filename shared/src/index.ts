@@ -1,4 +1,4 @@
 export * from './types';
 export * from './utils';
-export * from './api';
+export { apiClient } from './api';
 export * from './constants';
