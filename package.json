@@ -8,6 +8,18 @@
     "mobile",
     "shared"
   ],
+  "resolutions": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "@types/react": "~19.1.0"
+  },
+  "overrides": {
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "@types/react": "~19.1.0"
+  },
   "scripts": {
     "install:all": "npm install",
     "dev:web": "npm run dev --workspace=frontend",
