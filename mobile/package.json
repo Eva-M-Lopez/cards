@@ -9,15 +9,25 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@cards/shared": "*",
+    "@cards/shared": "file:../shared",
+    "@react-navigation/native": "^7.1.19",
+    "@react-navigation/stack": "^7.6.2",
+    "axios": "^1.13.1",
     "expo": "~54.0.20",
+    "expo-secure-store": "^15.0.7",
     "expo-status-bar": "~3.0.8",
     "react": "19.1.0",
-    "react-native": "0.81.5"
+    "react-native": "^0.81.5",
+    "react-navigation": "^5.0.0"
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2"
   },
-  "private": true
+  "private": true,
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
 }
