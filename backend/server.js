@@ -4,10 +4,19 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
 const { Resend } = require('resend');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({
+  model: "gemini-2.5-flash",
+  generationConfig: {
+    responseMimeType: "application/json",
+  },
+});
 
 // Use environment variables
 const url = process.env.MONGODB_URL;
@@ -354,6 +363,43 @@ app.post('/api/reset-password', async (req, res, next) =>
     var ret = { success: success, error: error };
     res.status(200).json(ret);
 });
+
+app.post('/api/generate-flashcards', async (req, res) => {
+  try {
+    const { topic } = req.body;
+
+    if (!topic) {
+      return res.status(400).json({ error: 'Topic is required.' });
+    }
+
+    // 3. This is the crucial prompt!
+    const prompt = `
+      You are an expert flashcard generation assistant.
+      Generate 10 flashcards for the topic: "${topic}".
+      
+      Respond with ONLY a valid JSON array. Each object in the array
+      must have exactly two keys: "question" and "answer".
+      
+      Do not include any other text, explanations, or markdown formatting
+      outside of the JSON array.
+    `;
+
+    // 4. Call the Gemini API
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const jsonText = response.text();
+
+    // 5. Send the JSON data back to the React frontend
+    // The model should return a string that is valid JSON
+    res.json(JSON.parse(jsonText)); 
+
+  } catch (error) {
+    console.error('Error generating flashcards:', error);
+    res.status(500).json({ error: 'Failed to generate flashcards.' });
+  }
+});
+
+
  
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
