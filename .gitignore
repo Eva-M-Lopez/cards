@@ -34,3 +34,4 @@ npm-debug.log*
 .env.local
 .env.production
 .env.production.local
+.docker-compose.yml
