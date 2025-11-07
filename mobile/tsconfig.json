@@ -1,6 +1,11 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@cards/shared": ["../shared/src"],
+      "@cards/shared/*": ["../shared/src/*"]
+    }
   }
 }
