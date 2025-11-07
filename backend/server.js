@@ -366,13 +366,13 @@ app.post('/api/reset-password', async (req, res, next) =>
 
 app.post('/api/generate-flashcards', async (req, res) => {
   try {
-    const { topic } = req.body;
+    const { topic, userId } = req.body;
 
     if (!topic) {
       return res.status(400).json({ error: 'Topic is required.' });
     }
 
-    // 3. This is the crucial prompt!
+    // Generate flashcards using AI
     const prompt = `
       You are an expert flashcard generation assistant.
       Generate 10 flashcards for the topic: "${topic}".
@@ -384,18 +384,182 @@ app.post('/api/generate-flashcards', async (req, res) => {
       outside of the JSON array.
     `;
 
-    // 4. Call the Gemini API
     const result = await model.generateContent(prompt);
     const response = result.response;
     const jsonText = response.text();
+    const flashcards = JSON.parse(jsonText);
 
-    // 5. Send the JSON data back to the React frontend
-    // The model should return a string that is valid JSON
-    res.json(JSON.parse(jsonText)); 
+    // Store the flashcard set in database
+    const db = client.db('COP4331Cards');
+    const flashcardSet = {
+      userId: userId || 0, // Default to 0 if no userId provided
+      topic: topic,
+      flashcards: flashcards,
+      createdAt: new Date(),
+      cardCount: flashcards.length
+    };
+
+    const insertResult = await db.collection('FlashcardSets').insertOne(flashcardSet);
+    console.log(`✅ Stored flashcard set for topic: ${topic} with ID: ${insertResult.insertedId}`);
+
+    // Return the flashcards to frontend
+    res.json(flashcards); 
 
   } catch (error) {
     console.error('Error generating flashcards:', error);
     res.status(500).json({ error: 'Failed to generate flashcards.' });
+  }
+});
+
+// New endpoint to get all flashcard sets for a user
+app.post('/api/get-flashcard-sets', async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const db = client.db('COP4331Cards');
+    
+    const flashcardSets = await db.collection('FlashcardSets')
+      .find({ userId: userId || 0 })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    res.json(flashcardSets);
+  } catch (error) {
+    console.error('Error fetching flashcard sets:', error);
+    res.status(500).json({ error: 'Failed to fetch flashcard sets.' });
+  }
+});
+
+// New endpoint to generate a test based on flashcards
+app.post('/api/generate-test', async (req, res) => {
+  try {
+    const { setId, userId } = req.body;
+
+    if (!setId) {
+      return res.status(400).json({ error: 'Set ID is required.' });
+    }
+
+    // Get the flashcard set from database
+    const db = client.db('COP4331Cards');
+    const { ObjectId } = require('mongodb');
+    
+    const flashcardSet = await db.collection('FlashcardSets').findOne({
+      _id: new ObjectId(setId),
+      userId: userId || 0
+    });
+
+    if (!flashcardSet) {
+      return res.status(404).json({ error: 'Flashcard set not found.' });
+    }
+
+    // Generate test questions using AI
+    const flashcardsText = flashcardSet.flashcards.map((card, index) => 
+      `${index + 1}. Q: ${card.question} A: ${card.answer}`
+    ).join('\n');
+
+    const prompt = `
+      You are an expert test generation assistant.
+      Based on the following flashcards about "${flashcardSet.topic}", generate 5 multiple choice test questions.
+      
+      Flashcards:
+      ${flashcardsText}
+      
+      Respond with ONLY a valid JSON array. Each object in the array must have exactly these keys:
+      - "question": the test question
+      - "options": array of 4 possible answers (A, B, C, D)
+      - "correctAnswer": the index (0-3) of the correct answer
+      - "explanation": brief explanation of why this answer is correct
+      
+      Make the questions challenging but fair, and ensure incorrect options are plausible but clearly wrong.
+      Do not include any other text, explanations, or markdown formatting outside of the JSON array.
+    `;
+
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const jsonText = response.text();
+    const testQuestions = JSON.parse(jsonText);
+
+    // Return the test questions to frontend
+    res.json(testQuestions);
+
+  } catch (error) {
+    console.error('Error generating test:', error);
+    res.status(500).json({ error: 'Failed to generate test.' });
+  }
+});
+
+// New endpoint to delete a flashcard set
+app.post('/api/delete-flashcard-set', async (req, res) => {
+  try {
+    const { setId, userId } = req.body;
+
+    if (!setId) {
+      return res.status(400).json({ error: 'Set ID is required.' });
+    }
+
+    // Delete the flashcard set from database
+    const db = client.db('COP4331Cards');
+    const { ObjectId } = require('mongodb');
+    
+    const result = await db.collection('FlashcardSets').deleteOne({
+      _id: new ObjectId(setId),
+      userId: userId || 0
+    });
+
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: 'Flashcard set not found or you do not have permission to delete it.' });
+    }
+
+    res.json({ success: true, message: 'Flashcard set deleted successfully.' });
+
+  } catch (error) {
+    console.error('Error deleting flashcard set:', error);
+    res.status(500).json({ error: 'Failed to delete flashcard set.' });
+  }
+});
+
+// New endpoint to store test score
+app.post('/api/store-test-score', async (req, res) => {
+  try {
+    const { setId, userId, score, totalQuestions, correctAnswers } = req.body;
+
+    if (!setId || score === undefined) {
+      return res.status(400).json({ error: 'Set ID and score are required.' });
+    }
+
+    const db = client.db('COP4331Cards');
+    const { ObjectId } = require('mongodb');
+    
+    // Find the flashcard set and update the highest score if this one is better
+    const flashcardSet = await db.collection('FlashcardSets').findOne({
+      _id: new ObjectId(setId),
+      userId: userId || 0
+    });
+
+    if (!flashcardSet) {
+      return res.status(404).json({ error: 'Flashcard set not found.' });
+    }
+
+    // Update the highest score if this one is better
+    const currentHighestScore = flashcardSet.highestScore || 0;
+    const newScore = Math.round((correctAnswers / totalQuestions) * 100);
+    
+    if (newScore > currentHighestScore) {
+      await db.collection('FlashcardSets').updateOne(
+        { _id: new ObjectId(setId), userId: userId || 0 },
+        { 
+          $set: { 
+            highestScore: newScore,
+            lastTestDate: new Date()
+          }
+        }
+      );
+    }
+
+    res.json({ success: true, highestScore: Math.max(currentHighestScore, newScore) });
+
+  } catch (error) {
+    console.error('Error storing test score:', error);
+    res.status(500).json({ error: 'Failed to store test score.' });
   }
 });
 

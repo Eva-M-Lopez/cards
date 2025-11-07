@@ -11,6 +11,7 @@ services:
     environment:
       - MONGODB_URL=mongodb+srv://RickL:COP4331@cluster0.rfuugai.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
       - RESEND_API_KEY=re_WnQYMkae_5S9sz65hj8KZ9fwtgzQkUDk8
+      - GEMINI_API_KEY=AIzaSyA1-jXU7S1dC4QHckX8e9boKt3EjyYgcxc
     command: npm run dev
 
   frontend:
