@@ -1,4 +1,3 @@
-// mobile/src/screens/SignupScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -13,10 +12,11 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Circle, Line } from 'react-native-svg';
 import GradientBackground from '../styles/GradientBackground';
 import { commonStyles } from '../styles/commonStyles';
-import { Colors } from '../styles/theme';
+import { Colors, Gradients } from '../styles/theme';
 import { signup } from '../../../shared/src/api/api';
 
 type RootStackParamList = {
@@ -154,16 +154,27 @@ function SignupScreen({ navigation }: Props) {
               />
             </View>
 
-            {message ? <Text style={commonStyles.errorMessage}>{message}</Text> : null}
+            {message ? (
+              <Text style={message.includes('✅') ? commonStyles.successMessage : commonStyles.errorMessage}>
+                {message}
+              </Text>
+            ) : null}
 
             <TouchableOpacity
-              style={[commonStyles.primaryButton, loading && commonStyles.primaryButtonDisabled]}
               onPress={doSignup}
               disabled={loading}
+              activeOpacity={0.8}
             >
-              <Text style={commonStyles.buttonText}>
-                {loading ? 'Creating Account...' : 'Sign Up'}
-              </Text>
+              <LinearGradient
+                colors={loading ? ['#a0c4e8', '#a0c4e8'] : Gradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.signupButton}
+              >
+                <Text style={commonStyles.buttonText}>
+                  {loading ? 'Creating Account...' : 'Sign Up'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             <View style={commonStyles.linkContainer}>
@@ -187,6 +198,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
+  },
+  signupButton: {
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
   },
 });
 

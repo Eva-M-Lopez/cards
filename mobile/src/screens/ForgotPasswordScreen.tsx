@@ -11,10 +11,12 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path, Line } from 'react-native-svg';
 import GradientBackground from '../styles/GradientBackground';
 import { commonStyles } from '../styles/commonStyles';
-import { Colors } from '../styles/theme';
+import { Colors, Gradients } from '../styles/theme';
+import { requestPasswordReset } from '../../../shared/src/api/api';
 
 type RootStackParamList = {
   Login: undefined;
@@ -31,8 +33,6 @@ interface Props {
   navigation: ForgotPasswordScreenNavigationProp;
 }
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000';
-
 function ForgotPasswordScreen({ navigation }: Props) {
   const [message, setMessage] = useState('');
   const [email, setEmail] = useState('');
@@ -45,21 +45,13 @@ function ForgotPasswordScreen({ navigation }: Props) {
     }
 
     setLoading(true);
-    const obj = { email: email };
-    const js = JSON.stringify(obj);
-
     try {
-      const response = await fetch(`${API_URL}/api/request-password-reset`, {
-        method: 'POST',
-        body: js,
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const res = await response.json();
+      const res = await requestPasswordReset(email);
 
       if (res.error && res.error.length > 0) {
         setMessage(res.error);
       } else {
-        setMessage('Reset code sent! Check your email (or backend logs for testing).');
+        setMessage('✅ Reset code sent! Check your email (or backend logs for testing).');
         await AsyncStorage.setItem('reset_email', email);
         setTimeout(() => {
           navigation.navigate('ResetPassword');
@@ -113,16 +105,27 @@ function ForgotPasswordScreen({ navigation }: Props) {
               />
             </View>
 
-            {message ? <Text style={commonStyles.errorMessage}>{message}</Text> : null}
+            {message ? (
+              <Text style={message.includes('✅') ? commonStyles.successMessage : commonStyles.errorMessage}>
+                {message}
+              </Text>
+            ) : null}
 
             <TouchableOpacity
-              style={[commonStyles.primaryButton, loading && commonStyles.primaryButtonDisabled]}
               onPress={requestReset}
               disabled={loading}
+              activeOpacity={0.8}
             >
-              <Text style={commonStyles.buttonText}>
-                {loading ? 'Sending...' : 'Send Reset Code'}
-              </Text>
+              <LinearGradient
+                colors={loading ? ['#a0c4e8', '#a0c4e8'] : Gradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.resetButton}
+              >
+                <Text style={commonStyles.buttonText}>
+                  {loading ? 'Sending...' : 'Send Reset Code'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -143,6 +146,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
+  },
+  resetButton: {
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
   },
 });
 

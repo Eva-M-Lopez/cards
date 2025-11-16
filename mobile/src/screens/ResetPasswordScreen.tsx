@@ -11,10 +11,12 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Rect, Path } from 'react-native-svg';
 import GradientBackground from '../styles/GradientBackground';
 import { commonStyles } from '../styles/commonStyles';
-import { Colors } from '../styles/theme';
+import { Colors, Gradients } from '../styles/theme';
+import { resetPassword } from '../../../shared/src/api/api';
 
 type RootStackParamList = {
   Login: undefined;
@@ -30,8 +32,6 @@ interface Props {
   navigation: ResetPasswordScreenNavigationProp;
 }
 
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000';
-
 function ResetPasswordScreen({ navigation }: Props) {
   const [message, setMessage] = useState('');
   const [resetCode, setResetCode] = useState('');
@@ -41,7 +41,6 @@ function ResetPasswordScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Get email from AsyncStorage when component mounts
     AsyncStorage.getItem('reset_email').then((storedEmail) => {
       if (storedEmail) {
         setEmail(storedEmail);
@@ -66,25 +65,13 @@ function ResetPasswordScreen({ navigation }: Props) {
     }
 
     setLoading(true);
-    const obj = {
-      email: email,
-      resetCode: resetCode,
-      newPassword: newPassword,
-    };
-    const js = JSON.stringify(obj);
-
     try {
-      const response = await fetch(`${API_URL}/api/reset-password`, {
-        method: 'POST',
-        body: js,
-        headers: { 'Content-Type': 'application/json' },
-      });
-      const res = await response.json();
+      const res = await resetPassword(email, resetCode, newPassword);
 
       if (res.error && res.error.length > 0) {
         setMessage(res.error);
       } else {
-        setMessage('Password reset successful! Redirecting to login...');
+        setMessage('✅ Password reset successful! Redirecting to login...');
         await AsyncStorage.removeItem('reset_email');
         setTimeout(() => {
           navigation.navigate('Login');
@@ -160,16 +147,27 @@ function ResetPasswordScreen({ navigation }: Props) {
               />
             </View>
 
-            {message ? <Text style={commonStyles.errorMessage}>{message}</Text> : null}
+            {message ? (
+              <Text style={message.includes('✅') ? commonStyles.successMessage : commonStyles.errorMessage}>
+                {message}
+              </Text>
+            ) : null}
 
             <TouchableOpacity
-              style={[commonStyles.primaryButton, loading && commonStyles.primaryButtonDisabled]}
               onPress={doReset}
               disabled={loading}
+              activeOpacity={0.8}
             >
-              <Text style={commonStyles.buttonText}>
-                {loading ? 'Resetting...' : 'Reset Password'}
-              </Text>
+              <LinearGradient
+                colors={loading ? ['#a0c4e8', '#a0c4e8'] : Gradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.resetButton}
+              >
+                <Text style={commonStyles.buttonText}>
+                  {loading ? 'Resetting...' : 'Reset Password'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -190,6 +188,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
+  },
+  resetButton: {
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
   },
 });
 

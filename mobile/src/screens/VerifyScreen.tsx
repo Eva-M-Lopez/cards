@@ -1,4 +1,3 @@
-// mobile/src/screens/VerifyScreen.tsx
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -13,11 +12,12 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import GradientBackground from '../styles/GradientBackground';
 import { commonStyles } from '../styles/commonStyles';
-import { Colors } from '../styles/theme';
-import { verify } from '../../../shared/src/api/api'; 
+import { Colors, Gradients } from '../styles/theme';
+import { verify } from '../../../shared/src/api/api';
 
 type RootStackParamList = {
   Login: undefined;
@@ -40,7 +40,6 @@ function VerifyScreen({ navigation }: Props) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Get pending username from AsyncStorage
     AsyncStorage.getItem('pending_verification').then((storedLogin) => {
       if (storedLogin) setLogin(storedLogin);
     });
@@ -54,7 +53,7 @@ function VerifyScreen({ navigation }: Props) {
 
     setLoading(true);
     try {
-      const res = await verify(login, verificationCode); // 👈 shared API call
+      const res = await verify(login, verificationCode);
 
       if (res.error && res.error.length > 0) {
         setMessage(res.error);
@@ -126,16 +125,27 @@ function VerifyScreen({ navigation }: Props) {
               />
             </View>
 
-            {message ? <Text style={commonStyles.errorMessage}>{message}</Text> : null}
+            {message ? (
+              <Text style={message.includes('✅') ? commonStyles.successMessage : commonStyles.errorMessage}>
+                {message}
+              </Text>
+            ) : null}
 
             <TouchableOpacity
-              style={[commonStyles.primaryButton, loading && commonStyles.primaryButtonDisabled]}
               onPress={doVerify}
               disabled={loading}
+              activeOpacity={0.8}
             >
-              <Text style={commonStyles.buttonText}>
-                {loading ? 'Verifying...' : 'Verify'}
-              </Text>
+              <LinearGradient
+                colors={loading ? ['#a0c4e8', '#a0c4e8'] : Gradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.verifyButton}
+              >
+                <Text style={commonStyles.buttonText}>
+                  {loading ? 'Verifying...' : 'Verify'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
@@ -160,6 +170,12 @@ const styles = StyleSheet.create({
   codeInput: {
     textAlign: 'center',
     letterSpacing: 4,
+  },
+  verifyButton: {
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
   },
 });
 
