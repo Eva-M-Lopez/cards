@@ -36,10 +36,10 @@ export const Colors = {
 };
 
 export const Gradients = {
-  primary: ['#6a11cb', '#2575fc'],
-  success: ['#4CAF50', '#45a049'],
-  purple: ['#9c27b0', '#673ab7'],
-  error: ['#dc3545', '#c82333'],
+  primary: ['#6a11cb', '#2575fc'] as const,
+  success: ['#4CAF50', '#45a049'] as const,
+  purple: ['#9c27b0', '#673ab7'] as const,
+  error: ['#dc3545', '#c82333'] as const,
 };
 
 export const Spacing = {

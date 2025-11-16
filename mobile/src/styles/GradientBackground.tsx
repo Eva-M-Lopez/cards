@@ -5,7 +5,7 @@ import { Gradients } from '../styles/theme';
 
 interface GradientBackgroundProps {
   children: React.ReactNode;
-  colors?: string[];
+  colors?: readonly [string, string, ...string[]];
   style?: ViewStyle;
 }
 
@@ -16,7 +16,7 @@ export function GradientBackground({
 }: GradientBackgroundProps) {
   return (
     <LinearGradient
-      colors={colors as [string, string, ...string[]]}
+      colors={colors}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[styles.gradient, style]}

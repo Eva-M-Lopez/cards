@@ -143,34 +143,39 @@ function CardUI()
    }
 
    async function submitTest() {
-      setShowResults(true);
-      
-      // Calculate score and store it
-      const correctAnswers = testAnswers.filter((answer, index) => answer === currentTest[index].correctAnswer).length;
-      const totalQuestions = currentTest.length;
-      
-      try {
-         // Store the test score in the database
-         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/store-test-score`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ 
-               setId: selectedSet?._id, 
-               userId: userId, 
-               score: Math.round((correctAnswers / totalQuestions) * 100),
-               totalQuestions: totalQuestions,
-               correctAnswers: correctAnswers
-            })
-         });
+      console.log('🔵 Submit test clicked!'); // DEBUG
+      console.log('🔵 Test answers:', testAnswers); // DEBUG
+      console.log('🔵 User ID:', userId); // DEBUG
+      console.log('🔵 Selected set:', selectedSet); // DEBUG
 
-         if (response.ok) {
-            // Refresh the flashcard sets to show updated progress
-            fetchAllFlashcardSets();
-         }
-      } catch (error) {
-         console.error('Error storing test score:', error);
+      if (!userId || !selectedSet) {
+         console.log('🔴 Missing userId or selectedSet'); // DEBUG
+         return;
       }
-   }
+
+      setShowResults(true);
+
+      const correctAnswers = testAnswers.filter(
+         (answer, index) => answer === currentTest[index].correctAnswer
+      ).length;
+      const totalQuestions = currentTest.length;
+
+      console.log('🔵 Correct answers:', correctAnswers); // DEBUG
+      console.log('🔵 Total questions:', totalQuestions); // DEBUG
+
+      try {
+         await storeTestScore(
+            selectedSet._id,
+            userId,
+            Math.round((correctAnswers / totalQuestions) * 100),
+            totalQuestions,
+            correctAnswers
+         );
+         console.log('✅ Score stored successfully'); // DEBUG
+      } catch (error) {
+         console.error('🔴 Error storing test score:', error);
+      }
+      }
 
    function exitTest() {
       setIsTestMode(false);

@@ -1,4 +1,3 @@
-// mobile/src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -13,10 +12,11 @@ import {
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Rect, Line } from 'react-native-svg';
 import GradientBackground from '../styles/GradientBackground';
 import { commonStyles } from '../styles/commonStyles';
-import { Colors } from '../styles/theme';
+import { Colors, Gradients } from '../styles/theme';
 import { loginUser } from '../../../shared/src/api/api';
 
 type RootStackParamList = {
@@ -56,7 +56,6 @@ function LoginScreen({ navigation }: Props) {
         return;
       }
 
-      // Save user info to AsyncStorage for persistence
       const user = {
         firstName: res.firstName,
         lastName: res.lastName,
@@ -125,13 +124,20 @@ function LoginScreen({ navigation }: Props) {
             {message ? <Text style={commonStyles.errorMessage}>{message}</Text> : null}
 
             <TouchableOpacity
-              style={[commonStyles.primaryButton, loading && commonStyles.primaryButtonDisabled]}
               onPress={doLogin}
               disabled={loading}
+              activeOpacity={0.8}
             >
-              <Text style={commonStyles.buttonText}>
-                {loading ? 'Logging in...' : 'Log in'}
-              </Text>
+              <LinearGradient
+                colors={loading ? ['#a0c4e8', '#a0c4e8'] : Gradients.primary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.loginButton}
+              >
+                <Text style={commonStyles.buttonText}>
+                  {loading ? 'Logging in...' : 'Log in'}
+                </Text>
+              </LinearGradient>
             </TouchableOpacity>
 
             <View style={styles.additionalLinks}>
@@ -161,6 +167,12 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'center',
     padding: 20,
+  },
+  loginButton: {
+    padding: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 20,
   },
   additionalLinks: {
     alignItems: 'center',
