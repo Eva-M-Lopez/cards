@@ -282,7 +282,7 @@ app.post('/api/request-password-reset', async (req, res, next) =>
             try {
                 const { data, error: emailError } = await resend.emails.send({
                     from: 'noreply@evalopez.xyz',
-                    to: 'email', // Hardcoded for testing
+                    to: email, // Hardcoded for testing
                     subject: 'Password Reset Code - COP 4331 Cards',
                     html: `
                         <h2>Password Reset Request</h2>
