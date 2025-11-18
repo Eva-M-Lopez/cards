@@ -78,10 +78,14 @@ app.post('/api/login', async (req, res, next) =>
     
     const db = client.db('COP4331Cards');
     const results = await db.collection('Users').find({Login:login,Password:password}).toArray();
+
+    console.log('Database results:', results[0]);
     
     var id = -1;
     var fn = '';
     var ln = '';
+    var email = '';
+    var username = '';
     
     if( results.length > 0 )
     {
@@ -94,6 +98,8 @@ app.post('/api/login', async (req, res, next) =>
             id = results[0].UserID;
             fn = results[0].FirstName;
             ln = results[0].LastName;
+            email = results[0].Email;       
+            username = results[0].Login;   
         }
     }
     else
@@ -101,7 +107,7 @@ app.post('/api/login', async (req, res, next) =>
         error = 'Invalid user name/password';
     }
     
-    var ret = { id:id, firstName:fn, lastName:ln, error:error};
+    var ret = { id:id, firstName:fn, lastName:ln, email:email, username:username, error:error};
     res.status(200).json(ret);
 });
  

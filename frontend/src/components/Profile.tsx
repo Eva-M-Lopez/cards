@@ -13,8 +13,8 @@ function Profile() {
     // User info states
     const [firstName, setFirstName] = useState(userData.firstName || '');
     const [lastName, setLastName] = useState(userData.lastName || '');
-    const [email, setEmail] = useState('');
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState(userData.email || '');
+    const [username, setUsername] = useState(userData.username || '');    
     
     // Password states
     const [currentPassword, setCurrentPassword] = useState('');
@@ -227,7 +227,7 @@ function Profile() {
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="your.email@example.com"
+                                            required
                                         />
                                     </div>
                                     <div className="input-group">

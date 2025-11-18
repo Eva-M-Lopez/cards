@@ -21,6 +21,7 @@ function Login() {
             });
             
             const res = await response.json();
+            console.log('Login response:', res);
 
             if (res.id <= 0) {
                 setMessage('User/Password combination incorrect');
@@ -28,7 +29,9 @@ function Login() {
                 const user = { 
                     firstName: res.firstName, 
                     lastName: res.lastName, 
-                    id: res.id 
+                    id: res.id,
+                    email: res.email,
+                    username: res.username
                 };
                 localStorage.setItem('user_data', JSON.stringify(user));
 
