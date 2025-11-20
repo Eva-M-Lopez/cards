@@ -26,6 +26,9 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "apiUrl": "http://68.183.171.109:5000/api"
     }
   }
 }
