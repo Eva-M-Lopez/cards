@@ -110,6 +110,63 @@ app.post('/api/login', async (req, res, next) =>
     var ret = { id:id, firstName:fn, lastName:ln, email:email, username:username, error:error};
     res.status(200).json(ret);
 });
+
+app.post('/api/update-profile', async (req, res) => {
+    const { userId, firstName, lastName, email } = req.body;
+    
+    const db = client.db('COP4331Cards');
+    
+    try {
+        const result = await db.collection('Users').updateOne(
+            { UserID: userId },
+            { 
+                $set: { 
+                    FirstName: firstName, 
+                    LastName: lastName,
+                    Email: email
+                } 
+            }
+        );
+        
+        if (result.modifiedCount > 0) {
+            res.status(200).json({ success: true });
+        } else {
+            res.status(400).json({ error: 'Failed to update profile' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
+
+app.post('/api/change-password', async (req, res) => {
+    const { userId, currentPassword, newPassword } = req.body;
+    
+    const db = client.db('COP4331Cards');
+    
+    try {
+        const user = await db.collection('Users').findOne({ 
+            UserID: userId, 
+            Password: currentPassword 
+        });
+        
+        if (!user) {
+            return res.status(400).json({ error: 'Current password is incorrect' });
+        }
+        
+        const result = await db.collection('Users').updateOne(
+            { UserID: userId },
+            { $set: { Password: newPassword } }
+        );
+        
+        if (result.modifiedCount > 0) {
+            res.status(200).json({ success: true });
+        } else {
+            res.status(400).json({ error: 'Failed to update password' });
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'Server error' });
+    }
+});
  
 app.post('/api/searchcards', async (req, res, next) => 
 {
