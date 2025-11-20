@@ -13,8 +13,8 @@ function Profile() {
     // User info states
     const [firstName, setFirstName] = useState(userData.firstName || '');
     const [lastName, setLastName] = useState(userData.lastName || '');
-    const [email, setEmail] = useState('');
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState(userData.email || '');
+    const [username, setUsername] = useState(userData.username || '');    
     
     // Password states
     const [currentPassword, setCurrentPassword] = useState('');
@@ -38,86 +38,87 @@ function Profile() {
         }
     }
 
-    // async function handleUpdateInfo(e: React.FormEvent) {
-    //     e.preventDefault();
+    async function handleUpdateInfo(e: React.FormEvent) {
+        e.preventDefault();
         
-    //     const obj = {
-    //         userId: userData.id,
-    //         firstName: firstName,
-    //         lastName: lastName,
-    //         email: email
-    //     };
-    //     const js = JSON.stringify(obj);
+        const obj = {
+            userId: userData.id,
+            firstName: firstName,
+            lastName: lastName,
+            email: email
+        };
+        const js = JSON.stringify(obj);
 
-    //     try {
-    //         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/update-profile`, {
-    //             method: 'POST',
-    //             body: js,
-    //             headers: { 'Content-Type': 'application/json' }
-    //         });
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/update-profile`, {
+                method: 'POST',
+                body: js,
+                headers: { 'Content-Type': 'application/json' }
+            });
             
-    //         const res = await response.json();
+            const res = await response.json();
 
-    //         if (res.error) {
-    //             setMessage(res.error);
-    //         } else {
-    //             // Update localStorage
-    //             const updatedUser = {
-    //                 ...userData,
-    //                 firstName: firstName,
-    //                 lastName: lastName
-    //             };
-    //             localStorage.setItem('user_data', JSON.stringify(updatedUser));
-    //             setMessage('Profile updated successfully!');
-    //             setTimeout(() => setMessage(''), 3000);
-    //         }
-    //     } catch (error) {
-    //         setMessage('Failed to update profile');
-    //     }
-    // }
+            if (res.error) {
+                setMessage(res.error);
+            } else {
+                // Update localStorage
+                const updatedUser = {
+                    ...userData,
+                    firstName: firstName,
+                    lastName: lastName,
+                    email: email
+                };
+                localStorage.setItem('user_data', JSON.stringify(updatedUser));
+                setMessage('Profile updated successfully!');
+                setTimeout(() => setMessage(''), 3000);
+            }
+        } catch (error) {
+            setMessage('Failed to update profile');
+        }
+    }
 
-    // async function handleChangePassword(e: React.FormEvent) {
-    //     e.preventDefault();
+    async function handleChangePassword(e: React.FormEvent) {
+        e.preventDefault();
 
-    //     if (newPassword !== confirmPassword) {
-    //         setMessage('Passwords do not match');
-    //         return;
-    //     }
+        if (newPassword !== confirmPassword) {
+            setMessage('Passwords do not match');
+            return;
+        }
 
-    //     if (newPassword.length < 6) {
-    //         setMessage('Password must be at least 6 characters');
-    //         return;
-    //     }
+        if (newPassword.length < 6) {
+            setMessage('Password must be at least 6 characters');
+            return;
+        }
 
-    //     const obj = {
-    //         userId: userData.id,
-    //         currentPassword: currentPassword,
-    //         newPassword: newPassword
-    //     };
-    //     const js = JSON.stringify(obj);
+        const obj = {
+            userId: userData.id,
+            currentPassword: currentPassword,
+            newPassword: newPassword
+        };
+        const js = JSON.stringify(obj);
 
-    //     try {
-    //         const response = await fetch(`${import.meta.env.VITE_API_URL}/api/change-password`, {
-    //             method: 'POST',
-    //             body: js,
-    //             headers: { 'Content-Type': 'application/json' }
-    //         });
+        try {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}/api/change-password`, {
+                method: 'POST',
+                body: js,
+                headers: { 'Content-Type': 'application/json' }
+            });
             
-    //         const res = await response.json();
+            const res = await response.json();
 
-    //         if (res.error) {
-    //             setMessage(res.error);
-    //         } else {
-    //             setMessage('Password changed successfully!');
-    //             setCurrentPassword('');
-    //             setNewPassword('');
-    //             setConfirmPassword('');
-    //             setTimeout(() => setMessage(''), 3000);
-    //         }
-    //     } catch (error) {
-    //         setMessage('Failed to change password');
-    //     }
-    // }
+            if (res.error) {
+                setMessage(res.error);
+            } else {
+                setMessage('Password changed successfully!');
+                setCurrentPassword('');
+                setNewPassword('');
+                setConfirmPassword('');
+                setTimeout(() => setMessage(''), 3000);
+            }
+        } catch (error) {
+            setMessage('Failed to change password');
+        }
+    }
 
     return (
         <div className="profile-page">
@@ -176,33 +177,13 @@ function Profile() {
                             </svg>
                             Password
                         </button>
-                        <button 
-                            className={`tab-button ${activeTab === 'score' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('score')}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                            </svg>
-                            Score
-                        </button>
-                        <button 
-                            className={`tab-button ${activeTab === 'stats' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('stats')}
-                        >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <line x1="18" y1="20" x2="18" y2="10"></line>
-                                <line x1="12" y1="20" x2="12" y2="4"></line>
-                                <line x1="6" y1="20" x2="6" y2="14"></line>
-                            </svg>
-                            Statistics
-                        </button>
                     </div>
 
                     <div className="profile-content">
                         {activeTab === 'info' && (
                             <div className="tab-content">
                                 <h3 className="content-title">Personal Information</h3>
-                                <form>
+                                <form onSubmit={handleUpdateInfo}>
                                     <div className="input-group">
                                         <label>First Name</label>
                                         <input
@@ -227,7 +208,7 @@ function Profile() {
                                             type="email"
                                             value={email}
                                             onChange={(e) => setEmail(e.target.value)}
-                                            placeholder="your.email@example.com"
+                                            required
                                         />
                                     </div>
                                     <div className="input-group">
@@ -252,7 +233,7 @@ function Profile() {
                         {activeTab === 'password' && (
                             <div className="tab-content">
                                 <h3 className="content-title">Change Password</h3>
-                                <form>
+                                <form onSubmit={handleChangePassword}>
                                     <div className="input-group">
                                         <label>Current Password</label>
                                         <input
@@ -285,67 +266,6 @@ function Profile() {
                                         Update Password
                                     </button>
                                 </form>
-                            </div>
-                        )}
-
-                        {activeTab === 'score' && (
-                            <div className="tab-content">
-                                <h3 className="content-title">Your Score</h3>
-                                <div className="score-display">
-                                    <div className="score-card">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                                        </svg>
-                                        <div className="score-value">1,250</div>
-                                        <div className="score-label">Total Points</div>
-                                    </div>
-                                    <div className="score-card">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-                                        </svg>
-                                        <div className="score-value">Level 12</div>
-                                        <div className="score-label">Current Level</div>
-                                    </div>
-                                    <div className="score-card">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                                        </svg>
-                                        <div className="score-value">7 Day</div>
-                                        <div className="score-label">Streak</div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {activeTab === 'stats' && (
-                            <div className="tab-content">
-                                <h3 className="content-title">Study Statistics</h3>
-                                <div className="stats-grid">
-                                    <div className="stat-item">
-                                        <div className="stat-label">Flashcards Created</div>
-                                        <div className="stat-value">145</div>
-                                    </div>
-                                    <div className="stat-item">
-                                        <div className="stat-label">Cards Studied</div>
-                                        <div className="stat-value">892</div>
-                                    </div>
-                                    <div className="stat-item">
-                                        <div className="stat-label">Study Sessions</div>
-                                        <div className="stat-value">47</div>
-                                    </div>
-                                    <div className="stat-item">
-                                        <div className="stat-label">Average Accuracy</div>
-                                        <div className="stat-value">87%</div>
-                                    </div>
-                                    <div className="stat-item">
-                                        <div className="stat-label">Total Study Time</div>
-                                        <div className="stat-value">24h 32m</div>
-                                    </div>
-                                    <div className="stat-item">
-                                        <div className="stat-label">Subjects Mastered</div>
-                                        <div className="stat-value">8</div>
-                                    </div>
-                                </div>
                             </div>
                         )}
                     </div>
